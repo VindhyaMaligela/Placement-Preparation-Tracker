@@ -9,9 +9,9 @@
             <h1 class="h2 fw-bold">Company Tracking</h1>
             <p class="text-muted mb-0">Keep list of companies you are applying to, alongside application status.</p>
         </div>
-        <button class="btn btn-primary disabled" title="CRUD features coming soon">
+        <a href="{{ url_for('companies.new_company') }}" class="btn btn-primary">
             <i class="bi bi-plus-lg me-1"></i> Add Company
-        </button>
+        </a>
     </div>
 </div>
 
@@ -32,12 +32,41 @@
                     <tbody>
                         {% for company in companies %}
                         <tr>
-                            <td><strong>{{ company.name }}</strong></td>
-                            <td>{{ company.role }}</td>
-                            <td><span class="badge bg-secondary">{{ company.status }}</span></td>
-                            <td>{{ company.application_date or 'N/A' }}</td>
                             <td>
-                                <button class="btn btn-sm btn-outline-secondary disabled">Edit</button>
+                                <strong>{{ company.name }}</strong>
+                                {% if company.notes %}
+                                    <i class="bi bi-file-text text-muted ms-1" title="{{ company.notes }}" data-bs-toggle="tooltip"></i>
+                                {% endif %}
+                            </td>
+                            <td>{{ company.role }}</td>
+                            <td>
+                                {% if company.status == 'Interested' %}
+                                    <span class="badge bg-secondary">Interested</span>
+                                {% elif company.status == 'Applied' %}
+                                    <span class="badge bg-primary">Applied</span>
+                                {% elif company.status == 'Interviewing' %}
+                                    <span class="badge bg-warning text-dark">Interviewing</span>
+                                {% elif company.status == 'Offered' %}
+                                    <span class="badge bg-success">Offered</span>
+                                {% elif company.status == 'Rejected' %}
+                                    <span class="badge bg-danger">Rejected</span>
+                                {% else %}
+                                    <span class="badge bg-secondary">{{ company.status }}</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ company.application_date.strftime('%Y-%m-%d') if company.application_date else 'N/A' }}</td>
+                            <td>
+                                <div class="d-flex gap-2">
+                                    <a href="{{ url_for('companies.edit_company', id=company.id) }}" class="btn btn-sm btn-outline-secondary">
+                                        <i class="bi bi-pencil me-1"></i>Edit
+                                    </a>
+                                    <form action="{{ url_for('companies.delete_company', id=company.id) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete {{ company.name }}? All associated tasks will also be deleted.');">
+                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                                        <button type="submit" class="btn btn-sm btn-outline-danger">
+                                            <i class="bi bi-trash me-1"></i>Delete
+                                        </button>
+                                    </form>
+                                </div>
                             </td>
                         </tr>
                         {% endfor %}
@@ -48,9 +77,22 @@
             <div class="text-center py-5 text-muted">
                 <i class="bi bi-building fs-1 mb-3 d-block text-secondary"></i>
                 <h5>No Companies Tracked Yet</h5>
-                <p class="mb-0">When CRUD features are completed, you will be able to add and track target companies here.</p>
+                <p class="mb-3">Start tracking your job applications by adding your first company.</p>
+                <a href="{{ url_for('companies.new_company') }}" class="btn btn-primary px-4">
+                    <i class="bi bi-plus-lg me-1"></i> Add Company
+                </a>
             </div>
         {% endif %}
     </div>
 </div>
+
+<script>
+    // Initialize Bootstrap tooltips
+    document.addEventListener('DOMContentLoaded', function () {
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl)
+        })
+    });
+</script>
 {% endblock %}

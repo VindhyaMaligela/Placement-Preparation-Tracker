@@ -1,0 +1,106 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ title }} - PrepTracker{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header bg-white py-3">
+                <h4 class="mb-0 fw-bold text-primary">{{ title }}</h4>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="" novalidate>
+                    {{ form.csrf_token }}
+                    
+                    <!-- Company Name -->
+                    <div class="mb-3">
+                        {{ form.name.label(class="form-label fw-semibold") }}
+                        {% if form.name.errors %}
+                            {{ form.name(class="form-control is-invalid", placeholder="e.g. Google") }}
+                            <div class="invalid-feedback">
+                                {% for error in form.name.errors %}
+                                    <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            {{ form.name(class="form-control", placeholder="e.g. Google") }}
+                        {% endif %}
+                    </div>
+
+                    <!-- Job Role -->
+                    <div class="mb-3">
+                        {{ form.role.label(class="form-label fw-semibold") }}
+                        {% if form.role.errors %}
+                            {{ form.role(class="form-control is-invalid", placeholder="e.g. Software Engineer") }}
+                            <div class="invalid-feedback">
+                                {% for error in form.role.errors %}
+                                    <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            {{ form.role(class="form-control", placeholder="e.g. Software Engineer") }}
+                        {% endif %}
+                    </div>
+
+                    <div class="row">
+                        <!-- Application Status -->
+                        <div class="col-md-6 mb-3">
+                            {{ form.status.label(class="form-label fw-semibold") }}
+                            {% if form.status.errors %}
+                                {{ form.status(class="form-select is-invalid") }}
+                                <div class="invalid-feedback">
+                                    {% for error in form.status.errors %}
+                                        <span>{{ error }}</span>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                {{ form.status(class="form-select") }}
+                            {% endif %}
+                        </div>
+
+                        <!-- Application Date -->
+                        <div class="col-md-6 mb-3">
+                            {{ form.application_date.label(class="form-label fw-semibold") }}
+                            {% if form.application_date.errors %}
+                                {{ form.application_date(class="form-control is-invalid", type="date") }}
+                                <div class="invalid-feedback">
+                                    {% for error in form.application_date.errors %}
+                                        <span>{{ error }}</span>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                {{ form.application_date(class="form-control", type="date") }}
+                            {% endif %}
+                            <small class="form-text text-muted">Format: YYYY-MM-DD</small>
+                        </div>
+                    </div>
+
+                    <!-- Notes -->
+                    <div class="mb-4">
+                        {{ form.notes.label(class="form-label fw-semibold") }}
+                        {% if form.notes.errors %}
+                            {{ form.notes(class="form-control is-invalid", rows="4", placeholder="Add application link, HR contact, or notes...") }}
+                            <div class="invalid-feedback">
+                                {% for error in form.notes.errors %}
+                                    <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            {{ form.notes(class="form-control", rows="4", placeholder="Add application link, HR contact, or notes...") }}
+                        {% endif %}
+                    </div>
+
+                    <!-- Submit and Cancel -->
+                    <div class="d-flex justify-content-between">
+                        <a href="{{ url_for('companies.index') }}" class="btn btn-outline-secondary">
+                            <i class="bi bi-arrow-left me-1"></i> Cancel
+                        </a>
+                        {{ form.submit(class="btn btn-primary px-4") }}
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

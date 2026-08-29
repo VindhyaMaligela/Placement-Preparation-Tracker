@@ -1,9 +1,11 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
+from flask_wtf.csrf import CSRFProtect
 from config import config_by_name
 
-# Initialize SQLAlchemy without binding it to a specific app instance yet
+# Initialize SQLAlchemy and CSRFProtect without binding to app yet
 db = SQLAlchemy()
+csrf = CSRFProtect()
 
 def create_app(config_name='development'):
     """Application factory function to configure and initialize the Flask app."""
@@ -12,8 +14,9 @@ def create_app(config_name='development'):
     # Load the configuration settings
     app.config.from_object(config_by_name.get(config_name, config_by_name['default']))
     
-    # Initialize SQLAlchemy with the Flask application
+    # Initialize extensions
     db.init_app(app)
+    csrf.init_app(app)
     
     # Import routes within factory to avoid circular dependencies
     from app.routes.dashboard import dashboard_bp
