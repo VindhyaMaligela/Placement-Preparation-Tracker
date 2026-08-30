@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, redirect, url_for, flash
+from flask import Blueprint, render_template, redirect, url_for, flash, request
 from app import db
 from app.models import Company
 from app.forms import CompanyForm
@@ -7,9 +7,18 @@ companies_bp = Blueprint('companies', __name__)
 
 @companies_bp.route('/')
 def index():
-    """Renders the companies list page."""
-    companies = Company.query.all()
-    return render_template('companies/index.html', companies=companies)
+    """Renders the companies list page with search and status filters."""
+    query = Company.query
+    search_query = request.args.get('search', '').strip()
+    status_query = request.args.get('status', '').strip()
+    
+    if search_query:
+        query = query.filter(Company.name.ilike(f'%{search_query}%') | Company.role.ilike(f'%{search_query}%'))
+    if status_query:
+        query = query.filter(Company.status.ilike(status_query))
+        
+    companies = query.all()
+    return render_template('companies/index.html', companies=companies, search=search_query, status=status_query)
 
 @companies_bp.route('/new', methods=['GET', 'POST'])
 def new_company():

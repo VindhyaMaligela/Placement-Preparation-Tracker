@@ -5,21 +5,22 @@
 {% block content %}
 <div class="row mb-4">
     <div class="col-12">
-        <h1 class="display-5 fw-bold">Welcome to Placement PrepTracker</h1>
-        <p class="lead text-muted">Track your company applications and preparation tasks all in one place.</p>
+        <h1 class="display-6 fw-bold">Placement PrepTracker</h1>
+        <p class="text-muted">Track applications, monitor preparation milestones, and analyze progress.</p>
     </div>
 </div>
 
-<!-- Stats Cards Row -->
-<div class="row">
+<!-- Stats Cards Row (3 Cards Metrics Bar) -->
+<div class="row g-3 mb-4">
     <!-- Companies Tracked Card -->
     <div class="col-md-4">
-        <div class="card bg-white border-start border-primary border-4">
-            <div class="card-body">
+        <div class="card h-100 bg-white border-start border-primary border-4 shadow-sm">
+            <div class="card-body py-3">
                 <div class="d-flex justify-content-between align-items-center">
                     <div>
-                        <h6 class="card-title text-uppercase text-muted mb-1">Companies Tracked</h6>
-                        <div class="stat-card-value">{{ stats.total_companies }}</div>
+                        <h6 class="card-title text-uppercase text-muted mb-1 small fw-bold">Total Companies</h6>
+                        <div class="stat-card-value fs-3 fw-bold">{{ stats.total_companies }}</div>
+                        <small class="text-muted">Active job applications</small>
                     </div>
                     <div class="text-primary fs-1">
                         <i class="bi bi-building"></i>
@@ -29,14 +30,19 @@
         </div>
     </div>
     
-    <!-- Tasks Completed Card -->
+    <!-- Tasks Overview Card -->
     <div class="col-md-4">
-        <div class="card bg-white border-start border-success border-4">
-            <div class="card-body">
+        <div class="card h-100 bg-white border-start border-success border-4 shadow-sm">
+            <div class="card-body py-3">
                 <div class="d-flex justify-content-between align-items-center">
                     <div>
-                        <h6 class="card-title text-uppercase text-muted mb-1">Tasks Completed</h6>
-                        <div class="stat-card-value">{{ stats.completed_tasks }} / {{ stats.total_tasks }}</div>
+                        <h6 class="card-title text-uppercase text-muted mb-1 small fw-bold">Tasks Overview</h6>
+                        <div class="stat-card-value fs-3 fw-bold">{{ stats.completed_tasks }} / {{ stats.total_tasks }}</div>
+                        <small class="text-muted d-block small mt-1">
+                            <strong>Completed Tasks</strong>: {{ stats.completed_tasks }} | 
+                            <strong>Pending Tasks</strong>: {{ stats.pending_tasks }} | 
+                            <strong>Total Tasks</strong>: {{ stats.total_tasks }}
+                        </small>
                     </div>
                     <div class="text-success fs-1">
                         <i class="bi bi-check2-square"></i>
@@ -46,16 +52,19 @@
         </div>
     </div>
 
-    <!-- Preparation Rate Card -->
+    <!-- Completion Rate Card -->
     <div class="col-md-4">
-        <div class="card bg-white border-start border-info border-4">
-            <div class="card-body">
+        <div class="card h-100 bg-white border-start border-info border-4 shadow-sm">
+            <div class="card-body py-3">
                 <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <h6 class="card-title text-uppercase text-muted mb-1">Completion Rate</h6>
-                        <div class="stat-card-value">{{ stats.completion_rate }}%</div>
+                    <div class="w-100">
+                        <h6 class="card-title text-uppercase text-muted mb-1 small fw-bold">Completion Rate</h6>
+                        <div class="stat-card-value fs-3 fw-bold mb-1">{{ stats.completion_rate }}%</div>
+                        <div class="progress" style="height: 6px;">
+                            <div class="progress-bar bg-info" role="progressbar" style="width: {{ stats.completion_rate }}%" aria-valuenow="{{ stats.completion_rate }}" aria-valuemin="0" aria-valuemax="100"></div>
+                        </div>
                     </div>
-                    <div class="text-info fs-1">
+                    <div class="text-info fs-1 ms-3">
                         <i class="bi bi-graph-up-arrow"></i>
                     </div>
                 </div>
@@ -64,18 +73,168 @@
     </div>
 </div>
 
-<div class="row mt-4">
-    <!-- Application Status Distribution -->
-    <div class="col-md-6">
-        <div class="card h-100">
+<!-- Main Column Content (8/4 Layout) -->
+<div class="row g-4">
+    <!-- Left Column (col-md-8) - Activity Lists -->
+    <div class="col-md-8">
+        <!-- Upcoming Tasks -->
+        <div class="card shadow-sm mb-4">
             <div class="card-header bg-white py-3">
-                <h5 class="mb-0 fw-semibold"><i class="bi bi-pie-chart-fill text-secondary me-2"></i>Application Status Distribution</h5>
+                <h5 class="mb-0 fw-semibold text-success"><i class="bi bi-calendar-event me-2"></i>Upcoming Tasks</h5>
             </div>
             <div class="card-body">
+                {% if stats.upcoming_tasks %}
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Task</th>
+                                    <th>Category</th>
+                                    <th>Company</th>
+                                    <th>Due Date</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for task in stats.upcoming_tasks %}
+                                <tr>
+                                    <td><strong>{{ task.title }}</strong></td>
+                                    <td><span class="badge bg-secondary-subtle text-secondary-emphasis rounded-pill px-2">{{ task.category }}</span></td>
+                                    <td>
+                                        {% if task.company %}
+                                            <span class="text-primary fw-semibold">{{ task.company.name }}</span>
+                                        {% else %}
+                                            <span class="text-muted font-monospace">General</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ task.due_date.strftime('%Y-%m-%d') if task.due_date else 'N/A' }}</td>
+                                    <td>
+                                        {% if task.status == 'Pending' %}
+                                            <span class="badge bg-warning text-dark">Pending</span>
+                                        {% elif task.status == 'In Progress' %}
+                                            <span class="badge bg-info text-dark">In Progress</span>
+                                        {% else %}
+                                            <span class="badge bg-secondary">{{ task.status }}</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="text-center py-4 text-muted">
+                        <i class="bi bi-check-circle fs-3 mb-2 d-block text-success"></i>
+                        <p class="mb-0">No upcoming pending tasks found.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Recent Companies -->
+        <div class="card shadow-sm">
+            <div class="card-header bg-white py-3">
+                <h5 class="mb-0 fw-semibold text-primary"><i class="bi bi-clock-history me-2"></i>Recent Companies</h5>
+            </div>
+            <div class="card-body">
+                {% if stats.recent_companies %}
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Company</th>
+                                    <th>Role</th>
+                                    <th>Status</th>
+                                    <th>Applied Date</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for company in stats.recent_companies %}
+                                <tr>
+                                    <td>
+                                        <a href="{{ url_for('companies.company_detail', id=company.id) }}" class="fw-bold text-decoration-none">
+                                            {{ company.name }}
+                                        </a>
+                                    </td>
+                                    <td>{{ company.role }}</td>
+                                    <td>
+                                        {% if company.status == 'Interested' %}
+                                            <span class="badge bg-secondary">Interested</span>
+                                        {% elif company.status == 'Applied' %}
+                                            <span class="badge bg-primary">Applied</span>
+                                        {% elif company.status == 'Interviewing' %}
+                                            <span class="badge bg-warning text-dark">Interviewing</span>
+                                        {% elif company.status == 'Offered' %}
+                                            <span class="badge bg-success">Offered</span>
+                                        {% elif company.status == 'Rejected' %}
+                                            <span class="badge bg-danger">Rejected</span>
+                                        {% else %}
+                                            <span class="badge bg-secondary">{{ company.status }}</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ company.application_date.strftime('%Y-%m-%d') if company.application_date else 'N/A' }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="text-center py-4 text-muted">
+                        <i class="bi bi-building fs-3 mb-2 d-block text-secondary"></i>
+                        <p class="mb-0">No companies tracked yet.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Right Column (col-md-4) - Sidebar -->
+    <div class="col-md-4">
+        <!-- Quick Actions -->
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-white py-3">
+                <h5 class="mb-0 fw-semibold text-dark"><i class="bi bi-lightning-charge-fill text-warning me-2"></i>Quick Actions</h5>
+            </div>
+            <div class="card-body">
+                <div class="row g-2">
+                    <div class="col-6">
+                        <a href="{{ url_for('companies.new_company') }}" class="btn btn-outline-primary w-100 py-3 text-center">
+                            <i class="bi bi-building-add fs-4 d-block mb-1"></i>
+                            <span class="small">Add Company</span>
+                        </a>
+                    </div>
+                    <div class="col-6">
+                        <a href="{{ url_for('companies.index') }}" class="btn btn-outline-primary w-100 py-3 text-center">
+                            <i class="bi bi-list-stars fs-4 d-block mb-1"></i>
+                            <span class="small">View List</span>
+                        </a>
+                    </div>
+                    <div class="col-6">
+                        <a href="{{ url_for('tasks.new_task') }}" class="btn btn-outline-success w-100 py-3 text-center">
+                            <i class="bi bi-calendar-plus fs-4 d-block mb-1"></i>
+                            <span class="small">Add Task</span>
+                        </a>
+                    </div>
+                    <div class="col-6">
+                        <a href="{{ url_for('tasks.index') }}" class="btn btn-outline-success w-100 py-3 text-center">
+                            <i class="bi bi-check2-square fs-4 d-block mb-1"></i>
+                            <span class="small">View Tasks</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Application Status Distribution -->
+        <div class="card shadow-sm">
+            <div class="card-header bg-white py-3">
+                <h5 class="mb-0 fw-semibold text-dark"><i class="bi bi-pie-chart-fill text-secondary me-2"></i>Application Status Distribution</h5>
+            </div>
+            <div class="card-body py-2">
                 {% if stats.status_distribution %}
                     <ul class="list-group list-group-flush">
                         {% for status, count in stats.status_distribution.items() %}
-                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <li class="list-group-item d-flex justify-content-between align-items-center px-0 py-2">
                                 <span class="badge bg-secondary-subtle text-secondary-emphasis rounded-pill px-3">{{ status }}</span>
                                 <span class="fw-bold">{{ count }}</span>
                             </li>
@@ -84,46 +243,9 @@
                 {% else %}
                     <div class="text-center py-4 text-muted">
                         <i class="bi bi-info-circle fs-3 mb-2 d-block"></i>
-                        <p class="mb-0">No company statuses to display yet. Add companies to see distribution.</p>
+                        <p class="mb-0 small">No statuses to display yet. Add companies first.</p>
                     </div>
                 {% endif %}
-            </div>
-        </div>
-    </div>
-
-    <!-- Quick Actions -->
-    <div class="col-md-6">
-        <div class="card h-100">
-            <div class="card-header bg-white py-3">
-                <h5 class="mb-0 fw-semibold"><i class="bi bi-lightning-charge-fill text-warning me-2"></i>Quick Actions</h5>
-            </div>
-            <div class="card-body d-flex flex-column justify-content-center">
-                <div class="row g-3">
-                    <div class="col-6">
-                        <a href="{{ url_for('companies.new_company') }}" class="btn btn-outline-primary w-100 py-3">
-                            <i class="bi bi-building-add fs-3 mb-2 d-block"></i>
-                            Add Company
-                        </a>
-                    </div>
-                    <div class="col-6">
-                        <a href="{{ url_for('companies.index') }}" class="btn btn-outline-primary w-100 py-3">
-                            <i class="bi bi-list-stars fs-3 mb-2 d-block"></i>
-                            View Companies
-                        </a>
-                    </div>
-                    <div class="col-6">
-                        <a href="{{ url_for('tasks.new_task') }}" class="btn btn-outline-success w-100 py-3">
-                            <i class="bi bi-calendar-plus fs-3 mb-2 d-block"></i>
-                            Add Task
-                        </a>
-                    </div>
-                    <div class="col-6">
-                        <a href="{{ url_for('tasks.index') }}" class="btn btn-outline-success w-100 py-3">
-                            <i class="bi bi-check2-square fs-3 mb-2 d-block"></i>
-                            View Tasks
-                        </a>
-                    </div>
-                </div>
             </div>
         </div>
     </div>

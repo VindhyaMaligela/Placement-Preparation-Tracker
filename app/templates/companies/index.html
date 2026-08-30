@@ -17,6 +17,32 @@
 
 <div class="card">
     <div class="card-body">
+        <!-- Search and Filter Form -->
+        <form method="GET" action="{{ url_for('companies.index') }}" class="row g-2 mb-4">
+            <div class="col-md-5">
+                <div class="input-group">
+                    <span class="input-group-text"><i class="bi bi-search"></i></span>
+                    <input type="text" name="search" class="form-control" placeholder="Search by company or role..." value="{{ search }}">
+                </div>
+            </div>
+            <div class="col-md-4">
+                <select name="status" class="form-select" onchange="this.form.submit();">
+                    <option value="">All Statuses</option>
+                    <option value="Interested" {% if status == 'Interested' %}selected{% endif %}>Interested</option>
+                    <option value="Applied" {% if status == 'Applied' %}selected{% endif %}>Applied</option>
+                    <option value="Interviewing" {% if status == 'Interviewing' %}selected{% endif %}>Interviewing</option>
+                    <option value="Offered" {% if status == 'Offered' %}selected{% endif %}>Offered</option>
+                    <option value="Rejected" {% if status == 'Rejected' %}selected{% endif %}>Rejected</option>
+                </select>
+            </div>
+            <div class="col-md-3 d-flex gap-2">
+                <button type="submit" class="btn btn-outline-primary flex-grow-1" onclick="this.form.submit(); return false;"><i class="bi bi-funnel-fill"></i> Filter</button>
+                {% if search or status %}
+                    <a href="{{ url_for('companies.index') }}" class="btn btn-outline-secondary" title="Clear Filters"><i class="bi bi-x-circle"></i> Clear</a>
+                {% endif %}
+            </div>
+        </form>
+
         {% if companies %}
             <div class="table-responsive">
                 <table class="table table-hover align-middle">
@@ -76,14 +102,25 @@
                 </table>
             </div>
         {% else %}
-            <div class="text-center py-5 text-muted">
-                <i class="bi bi-building fs-1 mb-3 d-block text-secondary"></i>
-                <h5>No Companies Tracked Yet</h5>
-                <p class="mb-3">Start tracking your job applications by adding your first company.</p>
-                <a href="{{ url_for('companies.new_company') }}" class="btn btn-primary px-4">
-                    <i class="bi bi-plus-lg me-1"></i> Add Company
-                </a>
-            </div>
+            {% if search or status %}
+                <div class="text-center py-5 text-muted">
+                    <i class="bi bi-search fs-1 mb-3 d-block text-secondary"></i>
+                    <h5>No Matches Found</h5>
+                    <p class="mb-3">No companies match your current search or filter criteria.</p>
+                    <a href="{{ url_for('companies.index') }}" class="btn btn-outline-secondary px-4">
+                        <i class="bi bi-x-circle me-1"></i> Clear Filters
+                    </a>
+                </div>
+            {% else %}
+                <div class="text-center py-5 text-muted">
+                    <i class="bi bi-building fs-1 mb-3 d-block text-secondary"></i>
+                    <h5>No Companies Tracked Yet</h5>
+                    <p class="mb-3">Start tracking your job applications by adding your first company.</p>
+                    <a href="{{ url_for('companies.new_company') }}" class="btn btn-primary px-4">
+                        <i class="bi bi-plus-lg me-1"></i> Add Company
+                    </a>
+                </div>
+            {% endif %}
         {% endif %}
     </div>
 </div>

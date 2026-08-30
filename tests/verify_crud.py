@@ -171,10 +171,7 @@ def run_verification():
             # Check dashboard stats
             print("\n--- Checking Dashboard Stats ---")
             status, dash_html, _ = get_page('/', session_cookie)
-            # Find stats inside list
-            # We can count total tasks and completed tasks from the response
-            # Let's inspect the page content
-            if 'Tasks Completed' in dash_html:
+            if 'Completed Tasks' in dash_html:
                 print("SUCCESS: Dashboard statistics page loaded successfully.")
                 # Print stats summary lines for manual review
                 print("Stats indicators:")

@@ -7,9 +7,21 @@ tasks_bp = Blueprint('tasks', __name__)
 
 @tasks_bp.route('/')
 def index():
-    """Renders the tasks list page."""
-    tasks = Task.query.all()
-    return render_template('tasks/index.html', tasks=tasks)
+    """Renders the tasks list page with search, category, and status filters."""
+    query = Task.query
+    search_query = request.args.get('search', '').strip()
+    category_query = request.args.get('category', '').strip()
+    status_query = request.args.get('status', '').strip()
+    
+    if search_query:
+        query = query.filter(Task.title.ilike(f'%{search_query}%'))
+    if category_query:
+        query = query.filter(Task.category.ilike(category_query))
+    if status_query:
+        query = query.filter(Task.status.ilike(status_query))
+        
+    tasks = query.all()
+    return render_template('tasks/index.html', tasks=tasks, search=search_query, category=category_query, status=status_query)
 
 @tasks_bp.route('/new', methods=['GET', 'POST'])
 def new_task():
