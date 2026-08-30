@@ -53,3 +53,9 @@ def delete_company(id):
     db.session.commit()
     flash(f'Company "{company.name}" has been deleted.', 'danger')
     return redirect(url_for('companies.index'))
+
+@companies_bp.route('/<int:id>', methods=['GET'])
+def company_detail(id):
+    """Route to view details of a specific company and its linked tasks."""
+    company = Company.query.get_or_404(id)
+    return render_template('companies/detail.html', company=company)

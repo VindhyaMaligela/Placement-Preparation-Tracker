@@ -20,6 +20,12 @@ def new_task():
         (c.id, f"{c.name} ({c.role})") for c in Company.query.order_by(Company.name).all()
     ]
     
+    if request.method == 'GET' and request.args.get('company_id'):
+        try:
+            form.company_id.data = int(request.args.get('company_id'))
+        except ValueError:
+            pass
+    
     if form.validate_on_submit():
         company_id = form.company_id.data if form.company_id.data != -1 else None
         completed = (form.status.data == 'Completed')

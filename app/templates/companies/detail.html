@@ -1,0 +1,152 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ company.name }} Details - PrepTracker{% endblock %}
+
+{% block content %}
+<!-- Back and Edit Actions -->
+<div class="row mb-4">
+    <div class="col-12 d-flex justify-content-between align-items-center">
+        <a href="{{ url_for('companies.index') }}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left me-1"></i> Back to Companies
+        </a>
+        <div class="d-flex gap-2">
+            <a href="{{ url_for('companies.edit_company', id=company.id) }}" class="btn btn-primary">
+                <i class="bi bi-pencil me-1"></i> Edit Company
+            </a>
+            <form action="{{ url_for('companies.delete_company', id=company.id) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete {{ company.name }}? All associated tasks will also be deleted.');">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                <button type="submit" class="btn btn-danger">
+                    <i class="bi bi-trash me-1"></i> Delete
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Company Profile Information -->
+    <div class="col-md-4 mb-4">
+        <div class="card h-100">
+            <div class="card-header bg-white py-3">
+                <h5 class="mb-0 fw-bold text-primary"><i class="bi bi-building me-2"></i>Company Profile</h5>
+            </div>
+            <div class="card-body">
+                <h3 class="card-title fw-bold mb-1">{{ company.name }}</h3>
+                <p class="text-muted mb-3">{{ company.role }}</p>
+                
+                <hr>
+
+                <div class="mb-3">
+                    <span class="text-muted d-block small text-uppercase fw-semibold text-secondary">Application Status</span>
+                    {% if company.status == 'Interested' %}
+                        <span class="badge bg-secondary fs-6 mt-1">Interested</span>
+                    {% elif company.status == 'Applied' %}
+                        <span class="badge bg-primary fs-6 mt-1">Applied</span>
+                    {% elif company.status == 'Interviewing' %}
+                        <span class="badge bg-warning text-dark fs-6 mt-1">Interviewing</span>
+                    {% elif company.status == 'Offered' %}
+                        <span class="badge bg-success fs-6 mt-1">Offered</span>
+                    {% elif company.status == 'Rejected' %}
+                        <span class="badge bg-danger fs-6 mt-1">Rejected</span>
+                    {% else %}
+                        <span class="badge bg-secondary fs-6 mt-1">{{ company.status }}</span>
+                    {% endif %}
+                </div>
+
+                <div class="mb-3">
+                    <span class="text-muted d-block small text-uppercase fw-semibold text-secondary">Application Date</span>
+                    <span class="fw-semibold">{{ company.application_date.strftime('%Y-%m-%d') if company.application_date else 'N/A' }}</span>
+                </div>
+
+                <div class="mb-3">
+                    <span class="text-muted d-block small text-uppercase fw-semibold text-secondary">Notes / Details</span>
+                    <p class="mb-0 text-secondary font-monospace" style="white-space: pre-wrap;">{{ company.notes or 'No notes provided yet.' }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Associated Tasks -->
+    <div class="col-md-8 mb-4">
+        <div class="card h-100">
+            <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+                <h5 class="mb-0 fw-bold text-success"><i class="bi bi-check2-square me-2"></i>Linked Preparation Tasks</h5>
+                <a href="{{ url_for('tasks.new_task', company_id=company.id) }}" class="btn btn-sm btn-success">
+                    <i class="bi bi-plus-lg me-1"></i> Add Task
+                </a>
+            </div>
+            <div class="card-body">
+                {% if company.tasks %}
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle">
+                            <thead>
+                                <tr>
+                                    <th>Task Title</th>
+                                    <th>Category</th>
+                                    <th>Due Date</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for task in company.tasks %}
+                                <tr>
+                                    <td>
+                                        <strong {% if task.status == 'Completed' %}class="text-decoration-line-through text-muted"{% endif %}>
+                                            {{ task.title }}
+                                        </strong>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-secondary-subtle text-secondary-emphasis rounded-pill px-3">
+                                            {{ task.category }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        {{ task.due_date.strftime('%Y-%m-%d') if task.due_date else 'N/A' }}
+                                    </td>
+                                    <td>
+                                        {% if task.status == 'Pending' %}
+                                            <span class="badge bg-warning text-dark">Pending</span>
+                                        {% elif task.status == 'In Progress' %}
+                                            <span class="badge bg-info text-dark">In Progress</span>
+                                        {% elif task.status == 'Completed' %}
+                                            <span class="badge bg-success">Completed</span>
+                                        {% else %}
+                                            <span class="badge bg-secondary">{{ task.status }}</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <div class="d-flex gap-2">
+                                            {% if task.status != 'Completed' %}
+                                                <form action="{{ url_for('tasks.complete_task', id=task.id) }}" method="POST">
+                                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                                                    <button type="submit" class="btn btn-sm btn-outline-success" title="Mark as Completed">
+                                                        <i class="bi bi-check2"></i>
+                                                    </button>
+                                                </form>
+                                            {% endif %}
+                                            <a href="{{ url_for('tasks.edit_task', id=task.id) }}" class="btn btn-sm btn-outline-secondary" title="Edit Task">
+                                                <i class="bi bi-pencil"></i>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="text-center py-5 text-muted">
+                        <i class="bi bi-check2-square fs-2 mb-2 d-block text-secondary"></i>
+                        <h6>No tasks linked to this company yet</h6>
+                        <p class="small mb-3">Schedule resume customization, coding review, or interviews for this company.</p>
+                        <a href="{{ url_for('tasks.new_task', company_id=company.id) }}" class="btn btn-sm btn-success">
+                            <i class="bi bi-plus-lg me-1"></i> Add Your First Task
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

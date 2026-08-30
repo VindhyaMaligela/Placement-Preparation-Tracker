@@ -33,7 +33,9 @@
                         {% for company in companies %}
                         <tr>
                             <td>
-                                <strong>{{ company.name }}</strong>
+                                <a href="{{ url_for('companies.company_detail', id=company.id) }}" class="fw-bold text-decoration-none">
+                                    {{ company.name }}
+                                </a>
                                 {% if company.notes %}
                                     <i class="bi bi-file-text text-muted ms-1" title="{{ company.notes }}" data-bs-toggle="tooltip"></i>
                                 {% endif %}
