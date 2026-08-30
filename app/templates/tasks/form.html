@@ -1,0 +1,123 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ title }} - PrepTracker{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header bg-white py-3">
+                <h4 class="mb-0 fw-bold text-success">{{ title }}</h4>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="" novalidate>
+                    {{ form.csrf_token }}
+                    
+                    <!-- Task Title -->
+                    <div class="mb-3">
+                        {{ form.title.label(class="form-label fw-semibold") }}
+                        {% if form.title.errors %}
+                            {{ form.title(class="form-control is-invalid", placeholder="e.g. Solve 5 LeetCode Easy problems") }}
+                            <div class="invalid-feedback">
+                                {% for error in form.title.errors %}
+                                    <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            {{ form.title(class="form-control", placeholder="e.g. Solve 5 LeetCode Easy problems") }}
+                        {% endif %}
+                    </div>
+
+                    <div class="row">
+                        <!-- Category -->
+                        <div class="col-md-6 mb-3">
+                            {{ form.category.label(class="form-label fw-semibold") }}
+                            {% if form.category.errors %}
+                                {{ form.category(class="form-select is-invalid") }}
+                                <div class="invalid-feedback">
+                                    {% for error in form.category.errors %}
+                                        <span>{{ error }}</span>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                {{ form.category(class="form-select") }}
+                            {% endif %}
+                        </div>
+
+                        <!-- Due Date -->
+                        <div class="col-md-6 mb-3">
+                            {{ form.due_date.label(class="form-label fw-semibold") }}
+                            {% if form.due_date.errors %}
+                                {{ form.due_date(class="form-control is-invalid", type="date") }}
+                                <div class="invalid-feedback">
+                                    {% for error in form.due_date.errors %}
+                                        <span>{{ error }}</span>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                {{ form.due_date(class="form-control", type="date") }}
+                            {% endif %}
+                            <small class="form-text text-muted">Format: YYYY-MM-DD</small>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <!-- Status -->
+                        <div class="col-md-6 mb-3">
+                            {{ form.status.label(class="form-label fw-semibold") }}
+                            {% if form.status.errors %}
+                                {{ form.status(class="form-select is-invalid") }}
+                                <div class="invalid-feedback">
+                                    {% for error in form.status.errors %}
+                                        <span>{{ error }}</span>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                {{ form.status(class="form-select") }}
+                            {% endif %}
+                        </div>
+
+                        <!-- Linked Company -->
+                        <div class="col-md-6 mb-3">
+                            {{ form.company_id.label(class="form-label fw-semibold") }}
+                            {% if form.company_id.errors %}
+                                {{ form.company_id(class="form-select is-invalid") }}
+                                <div class="invalid-feedback">
+                                    {% for error in form.company_id.errors %}
+                                        <span>{{ error }}</span>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                {{ form.company_id(class="form-select") }}
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Description -->
+                    <div class="mb-4">
+                        {{ form.description.label(class="form-label fw-semibold") }}
+                        {% if form.description.errors %}
+                            {{ form.description(class="form-control is-invalid", rows="4", placeholder="Specify description, code links, or notes...") }}
+                            <div class="invalid-feedback">
+                                {% for error in form.description.errors %}
+                                    <span>{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            {{ form.description(class="form-control", rows="4", placeholder="Specify description, code links, or notes...") }}
+                        {% endif %}
+                    </div>
+
+                    <!-- Submit and Cancel -->
+                    <div class="d-flex justify-content-between">
+                        <a href="{{ url_for('tasks.index') }}" class="btn btn-outline-secondary">
+                            <i class="bi bi-arrow-left me-1"></i> Cancel
+                        </a>
+                        {{ form.submit(class="btn btn-success px-4") }}
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

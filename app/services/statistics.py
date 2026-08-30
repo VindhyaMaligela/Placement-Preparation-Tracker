@@ -11,7 +11,7 @@ def get_dashboard_stats():
     """
     total_companies = Company.query.count()
     total_tasks = Task.query.count()
-    completed_tasks = Task.query.filter_by(completed=True).count()
+    completed_tasks = Task.query.filter((Task.completed == True) | (Task.status == 'Completed')).count()
     pending_tasks = total_tasks - completed_tasks
     
     completion_rate = 0.0

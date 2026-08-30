@@ -9,9 +9,9 @@
             <h1 class="h2 fw-bold">Preparation Tasks</h1>
             <p class="text-muted mb-0">Track preparation routines, DSA milestones, and resume checkups.</p>
         </div>
-        <button class="btn btn-success disabled" title="CRUD features coming soon">
+        <a href="{{ url_for('tasks.new_task') }}" class="btn btn-success">
             <i class="bi bi-plus-lg me-1"></i> Add Task
-        </button>
+        </a>
     </div>
 </div>
 
@@ -23,25 +23,70 @@
                     <thead>
                         <tr>
                             <th>Task Title</th>
-                            <th>Description</th>
+                            <th>Category</th>
+                            <th>Linked Company</th>
                             <th>Due Date</th>
-                            <th>Company Link</th>
                             <th>Status</th>
+                            <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for task in tasks %}
                         <tr>
-                            <td><strong>{{ task.title }}</strong></td>
-                            <td>{{ task.description or '' }}</td>
-                            <td>{{ task.due_date or 'N/A' }}</td>
-                            <td>{{ task.company.name if task.company else 'General Prep' }}</td>
                             <td>
-                                {% if task.completed %}
+                                <strong {% if task.status == 'Completed' %}class="text-decoration-line-through text-muted"{% endif %}>
+                                    {{ task.title }}
+                                </strong>
+                                {% if task.description %}
+                                    <i class="bi bi-info-circle text-muted ms-1" title="{{ task.description }}" data-bs-toggle="tooltip"></i>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <span class="badge bg-secondary-subtle text-secondary-emphasis rounded-pill px-3">
+                                    {{ task.category }}
+                                </span>
+                            </td>
+                            <td>
+                                {% if task.company %}
+                                    <span class="text-primary fw-semibold">{{ task.company.name }}</span>
+                                {% else %}
+                                    <span class="text-muted font-monospace">General Prep</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {{ task.due_date.strftime('%Y-%m-%d') if task.due_date else 'N/A' }}
+                            </td>
+                            <td>
+                                {% if task.status == 'Pending' %}
+                                    <span class="badge bg-warning text-dark">Pending</span>
+                                {% elif task.status == 'In Progress' %}
+                                    <span class="badge bg-info text-dark">In Progress</span>
+                                {% elif task.status == 'Completed' %}
                                     <span class="badge bg-success">Completed</span>
                                 {% else %}
-                                    <span class="badge bg-warning text-dark">Pending</span>
+                                    <span class="badge bg-secondary">{{ task.status }}</span>
                                 {% endif %}
+                            </td>
+                            <td>
+                                <div class="d-flex gap-2">
+                                    {% if task.status != 'Completed' %}
+                                        <form action="{{ url_for('tasks.complete_task', id=task.id) }}" method="POST">
+                                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                                            <button type="submit" class="btn btn-sm btn-outline-success" title="Mark as Completed">
+                                                <i class="bi bi-check2"></i>
+                                            </button>
+                                        </form>
+                                    {% endif %}
+                                    <a href="{{ url_for('tasks.edit_task', id=task.id) }}" class="btn btn-sm btn-outline-secondary" title="Edit Task">
+                                        <i class="bi bi-pencil"></i>
+                                    </a>
+                                    <form action="{{ url_for('tasks.delete_task', id=task.id) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete {{ task.title }}?');">
+                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                                        <button type="submit" class="btn btn-sm btn-outline-danger" title="Delete Task">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </form>
+                                </div>
                             </td>
                         </tr>
                         {% endfor %}
@@ -52,9 +97,22 @@
             <div class="text-center py-5 text-muted">
                 <i class="bi bi-check2-square fs-1 mb-3 d-block text-secondary"></i>
                 <h5>No Preparation Tasks Yet</h5>
-                <p class="mb-0">When CRUD features are completed, you will be able to schedule preparation milestones here.</p>
+                <p class="mb-3">Schedule your preparation milestones, DSA sessions, or interview checkups.</p>
+                <a href="{{ url_for('tasks.new_task') }}" class="btn btn-success px-4">
+                    <i class="bi bi-plus-lg me-1"></i> Add Task
+                </a>
             </div>
         {% endif %}
     </div>
 </div>
+
+<script>
+    // Initialize Bootstrap tooltips
+    document.addEventListener('DOMContentLoaded', function () {
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl)
+        })
+    });
+</script>
 {% endblock %}
